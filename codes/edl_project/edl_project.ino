@@ -11,6 +11,7 @@ float avg_freq=0, instant_avg=0;
 float avg_phase=0, instant_avg_phase=0;
 float start_time=512,start_time1=5, stop_time=610; 
 float freq, phase_degree=0, phase_degree2=0; 
+float peak_voltage=0, rms_voltage=0, min_voltage=0, actual_rms =0;
 
 void setup() {
   // put your setup code here, to run once:
@@ -28,11 +29,24 @@ void loop() {
  val = analogRead(A0);    // read the input pin
   val1 = analogRead(A1);    // read the input pin
 voltage = (val/1023.0)*5.0;
+
 voltage1 = (val1/1023.0)*5.0;
 n+=1;
 //sum+=voltage;
 //avg = sum/n;
 
+if (voltage>peak_voltage)
+{
+  peak_voltage = voltage;
+  }
+  if (voltage<min_voltage)
+{
+  min_voltage = voltage;
+  }
+rms_voltage = peak_voltage/1.414;
+
+actual_rms = (peak_voltage*4.9/1.414+0.25)*18.4887;
+//78 = 4.9*22.5/1.414;
 int output_voltage = (voltage/5.0)*255;
 int output_voltage1 = (voltage1/5.0)*255;
 if (output_voltage>=127)
@@ -84,7 +98,22 @@ prev_voltage1 = output_voltage1;
 //
 //Serial.print(avg);             // debug value
 if (n==1000){
+
+ Serial.print(" voltage is : ");             // debug value
+  Serial.print(val);             // debug value
+ Serial.print(" rms_voltage is : ");             // debug value
+  Serial.print(actual_rms);             // debug value
+//  Serial.print(rms_voltage);             // debug value
+Serial.print(" peak_voltage is : ");             // debug value
+
+  Serial.print(peak_voltage );             // debug value
   
+Serial.print(" min_voltage is : ");             // debug value
+
+  Serial.println(min_voltage );             // debug value
+
+  send_data();
+//  
 //Serial.print(" output_voltage is : ");             // debug value
 ////
 //  Serial.print(output_voltage );             // debug value
@@ -115,6 +144,7 @@ if (n==1000){
 //
 //Serial.println(millis());             // debug value
 n=0;
+peak_voltage=0;
     if (i<10)
   {
   sum_freq+=freq; 
@@ -133,10 +163,10 @@ else
   i=0;
   sum_freq=0;
   sum_phase=0;
-  Serial.print("  avg freq : ");             // debug value
-Serial.print(avg_freq);             // debug value
-  Serial.print("  avg phase : ");             // debug value
-Serial.println(avg_phase);             // debug value
+//  Serial.print("  avg freq : ");             // debug value
+//Serial.print(avg_freq);             // debug value
+//  Serial.print("  avg phase : ");             // debug value
+//Serial.println(avg_phase);             // debug value
   }
 
   }
@@ -144,3 +174,14 @@ Serial.println(avg_phase);             // debug value
 //delay(3);
 }
 
+void send_data(){
+
+  Serial.end();
+  Serial.begin(115200);
+  delay(100);
+  Serial.write("this is testing serial");
+  delay(100);
+  Serial.end();
+  Serial.begin(9600);
+  
+  }
